@@ -1,19 +1,21 @@
-package ch01;
+package ch02;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mysql.cj.xdevapi.PreparableStatement;
+
 import ch01.dto.Employee;
 
 public class MySQLJdbcExample {
 
 	public static void main(String[] args) {
-		
 
 		// 준비물
 		String url = "jdbc:mysql://localhost:3306/mydb2?serverTimezone=Asia/Seoul";
@@ -38,47 +40,35 @@ public class MySQLJdbcExample {
 			// 2. 데이터 베이스의 연결 설정
 			connection = DriverManager.getConnection(url, user, password);
 			// 생성된 객체 connection에 넣어야 오류 안 뜸
-			
-			// 3. SQL 쿼리 실행
-			statement = connection.createStatement();
-			// 2가지 기억하기(쿼리를 실행 시키는 메서드)
-			resultSet = statement.executeQuery("SELECT * FROM employee limit = 1"); // select 실행 시 사용한다.
-			// statement.executeUpdate(password); --> insert, Update, delete 사용
 
-			// 구문 분석 -- 파싱
+			// 3. SQL 쿼리 실행(PreparedStatement 객체 사용해보기)
+			// 3_1. 쿼리 만들어 보기
+			String query = "insert into employee values(?, ?, ?, ?, now())";
+
+			PreparedStatement preparableStatement = connection.prepareStatement(query);
+			preparableStatement.setInt(1, 7);
+			preparableStatement.setString(2, "이순신");
+			preparableStatement.setString(3, "IT");
+			preparableStatement.setString(4, "5000000.00");
+
+			// 실행의 호출은 executeQuery 사용
+			// resultSet = preparableStatement.executeQuery(); --> select 할 때 사용
+			int rowCount = preparableStatement.executeUpdate();
+			System.out.println("rowCount :" + rowCount);
 
 			// 4. 결과 처리
-			// 5개의 다중 구문이 while 문을 통해 5번 반복해서 출력됨.
-			List<Employee> list = new ArrayList<>();
-			
-			Employee employee = null;// null 값을 넣어준 후 객체 생성
-			// while문 돌 때 덮어쓰기가 됨. 
 			while (resultSet.next()) {
-//				System.out.println("USER ID : " + resultSet.getInt("id"));
-//				System.out.println("USER NAME : " + resultSet.getString("name"));
-//				System.out.println("department : " + resultSet.getString("department"));
-//				System.out.println("-------------------------------------");
-				
-				employee = new Employee();
-				// resultSet.getInt("id") 이 결과를 employee.id 여기에 담음
-				employee.id = resultSet.getInt("id"); 
-				employee.name = resultSet.getString("name");
-				employee.department = resultSet.getString("department");
-				list.add(employee); // employee를 통으로 list에 붙임.
-				employee.toString();
-				
-				for (Employee em : list) {
-					System.out.println();
-				}
-				
+				System.out.println("USER ID : " + resultSet.getInt("id"));
+				System.out.println("USER NAME : " + resultSet.getString("name"));
+				System.out.println("department : " + resultSet.getString("department"));
+				System.out.println("-------------------------------------");
 			}
-
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
+		
 	}// end of main
-
-} // end of class
+	
+}// end of class
