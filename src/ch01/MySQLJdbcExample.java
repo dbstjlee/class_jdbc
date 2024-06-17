@@ -13,7 +13,6 @@ import ch01.dto.Employee;
 public class MySQLJdbcExample {
 
 	public static void main(String[] args) {
-		
 
 		// 준비물
 		String url = "jdbc:mysql://localhost:3306/mydb2?serverTimezone=Asia/Seoul";
@@ -31,6 +30,7 @@ public class MySQLJdbcExample {
 		// 1. MySQL 구현체를 사용하겠다는 설정을 해야 한다.
 		// 구현 클래스(JDBC 드라이버)를 메모리에 올림.(DriverManager를 이용)
 		// JDBC 드라이버 로드를 해줘야 함. (그 중 MySQL 드라이버 구현 클래스를 로드함)
+
 		try {
 			// 1. 메모리에 사용하는 드라이버(JDBC API를 구현한 클래스) 클래스를 띄운다.
 			Class.forName("com.mysql.cj.jdbc.Driver"); // 컴파일 시점은 문자열
@@ -38,7 +38,7 @@ public class MySQLJdbcExample {
 			// 2. 데이터 베이스의 연결 설정
 			connection = DriverManager.getConnection(url, user, password);
 			// 생성된 객체 connection에 넣어야 오류 안 뜸
-			
+
 			// 3. SQL 쿼리 실행
 			statement = connection.createStatement();
 			// 2가지 기억하기(쿼리를 실행 시키는 메서드)
@@ -48,29 +48,30 @@ public class MySQLJdbcExample {
 			// 구문 분석 -- 파싱
 
 			// 4. 결과 처리
+			while (resultSet.next()) {
+				System.out.println("USER ID : " + resultSet.getInt("id"));
+				System.out.println("USER NAME : " + resultSet.getString("name"));
+				System.out.println("department : " + resultSet.getString("department"));
+				System.out.println("----------------------------------");
+			}
+
 			// 5개의 다중 구문이 while 문을 통해 5번 반복해서 출력됨.
 			List<Employee> list = new ArrayList<>();
-			
+
 			Employee employee = null;// null 값을 넣어준 후 객체 생성
-			// while문 돌 때 덮어쓰기가 됨. 
+			// while문 돌 때 덮어쓰기가 됨.
 			while (resultSet.next()) {
-//				System.out.println("USER ID : " + resultSet.getInt("id"));
-//				System.out.println("USER NAME : " + resultSet.getString("name"));
-//				System.out.println("department : " + resultSet.getString("department"));
-//				System.out.println("-------------------------------------");
-				
 				employee = new Employee();
 				// resultSet.getInt("id") 이 결과를 employee.id 여기에 담음
-				employee.id = resultSet.getInt("id"); 
+				employee.id = resultSet.getInt("id");
 				employee.name = resultSet.getString("name");
 				employee.department = resultSet.getString("department");
 				list.add(employee); // employee를 통으로 list에 붙임.
 				employee.toString();
-				
+
 				for (Employee em : list) {
 					System.out.println();
 				}
-				
 			}
 
 		} catch (ClassNotFoundException e) {
